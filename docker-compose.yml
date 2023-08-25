@@ -1,0 +1,35 @@
+version: '3'
+services:
+  gin-blog:
+    image: blog_ubuntu
+    container_name: gin-blog
+    networks:
+      - blog-network
+    command: go run main.go
+    depends_on:
+      - blog-mongo
+
+  blog-mongo:
+    image: mongo:4.4-rc
+    container_name: blog-mongo
+    volumes:
+      - ./db/mongo:/data/db
+    networks:
+      - blog-network
+    ports:
+      - 27017:27017
+
+  blog-nginx:
+    image: nginx
+    container_name: blog-nginx
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - blog-network
+    ports:
+      - 80:80
+    depends_on:
+      - gin-blog
+
+networks:
+  blog-network:
